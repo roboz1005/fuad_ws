@@ -1,0 +1,22 @@
+[2.838s] Invoking command in '/home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fuad/Downloads/fuad_ws/install/quadcopter_gazebo/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo/build --no-deps symlink_data --force
+[3.473s] running develop
+[3.924s] running egg_info
+[3.969s] writing quadcopter_gazebo.egg-info/PKG-INFO
+[3.970s] writing dependency_links to quadcopter_gazebo.egg-info/dependency_links.txt
+[3.970s] writing entry points to quadcopter_gazebo.egg-info/entry_points.txt
+[3.970s] writing requirements to quadcopter_gazebo.egg-info/requires.txt
+[3.970s] writing top-level names to quadcopter_gazebo.egg-info/top_level.txt
+[4.060s] reading manifest file 'quadcopter_gazebo.egg-info/SOURCES.txt'
+[4.061s] writing manifest file 'quadcopter_gazebo.egg-info/SOURCES.txt'
+[4.110s] running build_ext
+[4.110s] Creating /home/fuad/Downloads/fuad_ws/install/quadcopter_gazebo/lib/python3.12/site-packages/quadcopter-gazebo.egg-link (link to .)
+[4.111s] Installing motor_mixer script to /home/fuad/Downloads/fuad_ws/install/quadcopter_gazebo/lib/quadcopter_gazebo
+[4.112s] Installing teleop_to_motor script to /home/fuad/Downloads/fuad_ws/install/quadcopter_gazebo/lib/quadcopter_gazebo
+[4.113s] 
+[4.113s] Installed /home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo
+[4.113s] running symlink_data
+[4.114s] symbolically linking /home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo/resource/quadcopter_gazebo -> /home/fuad/Downloads/fuad_ws/install/quadcopter_gazebo/share/ament_index/resource_index/packages
+[4.114s] symbolically linking /home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo/launch/quadcopter.launch.py -> /home/fuad/Downloads/fuad_ws/install/quadcopter_gazebo/share/quadcopter_gazebo/launch
+[4.114s] symbolically linking /home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo/models/quadcopter/model.sdf -> /home/fuad/Downloads/fuad_ws/install/quadcopter_gazebo/share/quadcopter_gazebo/models/quadcopter
+[4.115s] symbolically linking /home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo/models/quadcopter/model.config -> /home/fuad/Downloads/fuad_ws/install/quadcopter_gazebo/share/quadcopter_gazebo/models/quadcopter
+[4.197s] Invoked command in '/home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fuad/Downloads/fuad_ws/install/quadcopter_gazebo/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/fuad/Downloads/fuad_ws/build/quadcopter_gazebo/build --no-deps symlink_data --force

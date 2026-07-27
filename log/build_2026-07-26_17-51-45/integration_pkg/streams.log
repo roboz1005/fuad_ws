@@ -1,0 +1,35 @@
+[1.068s] Invoking command in '/home/fuad/Downloads/fuad_ws/src/integration_pkg': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PS1=(.venv) \[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ PYTHONPATH=/home/fuad/Downloads/fuad_ws/build/integration_pkg/prefix_override:/home/fuad/Downloads/fuad_ws/.venv/lib/python3.12/site-packages/colcon_core/task/python/colcon_distutils_commands:/home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/python3.12/site-packages:${PYTHONPATH} VIRTUAL_ENV_PROMPT=(.venv) /home/fuad/Downloads/fuad_ws/.venv/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/integration_pkg build --build-base /home/fuad/Downloads/fuad_ws/build/integration_pkg/build install --record /home/fuad/Downloads/fuad_ws/build/integration_pkg/install.log --install-scripts $base/lib/integration_pkg --single-version-externally-managed install_data
+[1.308s] running egg_info
+[1.324s] writing ../../build/integration_pkg/integration_pkg.egg-info/PKG-INFO
+[1.324s] writing dependency_links to ../../build/integration_pkg/integration_pkg.egg-info/dependency_links.txt
+[1.325s] writing entry points to ../../build/integration_pkg/integration_pkg.egg-info/entry_points.txt
+[1.325s] writing requirements to ../../build/integration_pkg/integration_pkg.egg-info/requires.txt
+[1.325s] writing top-level names to ../../build/integration_pkg/integration_pkg.egg-info/top_level.txt
+[1.357s] reading manifest file '../../build/integration_pkg/integration_pkg.egg-info/SOURCES.txt'
+[1.358s] writing manifest file '../../build/integration_pkg/integration_pkg.egg-info/SOURCES.txt'
+[1.358s] running build
+[1.359s] running build_py
+[1.359s] copying integration_pkg/battery_sim_node.py -> /home/fuad/Downloads/fuad_ws/build/integration_pkg/build/lib/integration_pkg
+[1.359s] copying integration_pkg/teleop_bridge.py -> /home/fuad/Downloads/fuad_ws/build/integration_pkg/build/lib/integration_pkg
+[1.359s] copying integration_pkg/selector_node.py -> /home/fuad/Downloads/fuad_ws/build/integration_pkg/build/lib/integration_pkg
+[1.359s] copying integration_pkg/dashboard_node.py -> /home/fuad/Downloads/fuad_ws/build/integration_pkg/build/lib/integration_pkg
+[1.359s] copying integration_pkg/voice_node.py -> /home/fuad/Downloads/fuad_ws/build/integration_pkg/build/lib/integration_pkg
+[1.359s] copying integration_pkg/follow_node.py -> /home/fuad/Downloads/fuad_ws/build/integration_pkg/build/lib/integration_pkg
+[1.360s] copying integration_pkg/__init__.py -> /home/fuad/Downloads/fuad_ws/build/integration_pkg/build/lib/integration_pkg
+[1.360s] running install
+[1.365s] running install_lib
+[1.381s] running install_data
+[1.381s] copying launch/all.launch.py -> /home/fuad/Downloads/fuad_ws/install/integration_pkg/share/integration_pkg/launch
+[1.382s] copying config/params.yaml -> /home/fuad/Downloads/fuad_ws/install/integration_pkg/share/integration_pkg/config
+[1.382s] running install_egg_info
+[1.398s] removing '/home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/python3.12/site-packages/integration_pkg-0.0.1-py3.12.egg-info' (and everything under it)
+[1.398s] Copying ../../build/integration_pkg/integration_pkg.egg-info to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/python3.12/site-packages/integration_pkg-0.0.1-py3.12.egg-info
+[1.400s] running install_scripts
+[1.477s] Installing battery_sim script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[1.478s] Installing dashboard_node script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[1.478s] Installing follow_node script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[1.478s] Installing selector_node script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[1.479s] Installing teleop_bridge script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[1.479s] Installing voice_node script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[1.479s] writing list of installed files to '/home/fuad/Downloads/fuad_ws/build/integration_pkg/install.log'
+[1.527s] Invoked command in '/home/fuad/Downloads/fuad_ws/src/integration_pkg' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PS1=(.venv) \[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ PYTHONPATH=/home/fuad/Downloads/fuad_ws/build/integration_pkg/prefix_override:/home/fuad/Downloads/fuad_ws/.venv/lib/python3.12/site-packages/colcon_core/task/python/colcon_distutils_commands:/home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/python3.12/site-packages:${PYTHONPATH} VIRTUAL_ENV_PROMPT=(.venv) /home/fuad/Downloads/fuad_ws/.venv/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/integration_pkg build --build-base /home/fuad/Downloads/fuad_ws/build/integration_pkg/build install --record /home/fuad/Downloads/fuad_ws/build/integration_pkg/install.log --install-scripts $base/lib/integration_pkg --single-version-externally-managed install_data

@@ -1,0 +1,9 @@
+{
+    "chat.tools.edits.autoApprove": {
+        "**/.vscode/*.json": true
+    },
+    "python.analysis.extraPaths": [
+    "/opt/ros/jazzy/lib/python3.12/site-packages",
+    "/usr/lib/python3/dist-packages"
+  ]
+}

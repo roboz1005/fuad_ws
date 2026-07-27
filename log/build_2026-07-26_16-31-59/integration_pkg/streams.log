@@ -1,0 +1,25 @@
+[2.839s] Invoking command in '/home/fuad/Downloads/fuad_ws/build/integration_pkg': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/fuad/Downloads/fuad_ws/build/integration_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/fuad/Downloads/fuad_ws/build/integration_pkg/build --no-deps symlink_data --force
+[3.476s] running develop
+[3.909s] running egg_info
+[3.951s] writing integration_pkg.egg-info/PKG-INFO
+[3.951s] writing dependency_links to integration_pkg.egg-info/dependency_links.txt
+[3.952s] writing entry points to integration_pkg.egg-info/entry_points.txt
+[3.952s] writing requirements to integration_pkg.egg-info/requires.txt
+[3.952s] writing top-level names to integration_pkg.egg-info/top_level.txt
+[4.036s] reading manifest file 'integration_pkg.egg-info/SOURCES.txt'
+[4.038s] writing manifest file 'integration_pkg.egg-info/SOURCES.txt'
+[4.082s] running build_ext
+[4.082s] Creating /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/python3.12/site-packages/integration-pkg.egg-link (link to .)
+[4.083s] Installing battery_sim script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[4.084s] Installing dashboard_node script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[4.084s] Installing follow_node script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[4.085s] Installing selector_node script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[4.085s] Installing teleop_bridge script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[4.085s] Installing voice_node script to /home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/integration_pkg
+[4.085s] 
+[4.086s] Installed /home/fuad/Downloads/fuad_ws/build/integration_pkg
+[4.086s] running symlink_data
+[4.086s] symbolically linking /home/fuad/Downloads/fuad_ws/build/integration_pkg/resource/integration_pkg -> /home/fuad/Downloads/fuad_ws/install/integration_pkg/share/ament_index/resource_index/packages
+[4.086s] symbolically linking /home/fuad/Downloads/fuad_ws/build/integration_pkg/launch/all.launch.py -> /home/fuad/Downloads/fuad_ws/install/integration_pkg/share/integration_pkg/launch
+[4.086s] symbolically linking /home/fuad/Downloads/fuad_ws/build/integration_pkg/config/params.yaml -> /home/fuad/Downloads/fuad_ws/install/integration_pkg/share/integration_pkg/config
+[4.159s] Invoked command in '/home/fuad/Downloads/fuad_ws/build/integration_pkg' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/fuad/Downloads/fuad_ws/build/integration_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/fuad/Downloads/fuad_ws/build/integration_pkg/build --no-deps symlink_data --force
