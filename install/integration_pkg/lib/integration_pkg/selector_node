@@ -1,4 +1,4 @@
-#!/home/fuad/Downloads/fuad_ws/.venv/bin/python3
+#!/usr/bin/python3
 # EASY-INSTALL-ENTRY-SCRIPT: 'integration-pkg==0.0.1','console_scripts','selector_node'
 import re
 import sys
