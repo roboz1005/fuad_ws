@@ -2,7 +2,7 @@
 Master launch file: X3 quadcopter + TurtleBot3 in Gazebo Harmonic.
 
 Usage:
-  ros2 launch integration_pkg all.launch.py
+ ros2 launch integration_pkg all.launch.py
 """
 import os
 
@@ -75,6 +75,9 @@ def generate_launch_description():
         output="screen",
     )
 
+    # FIX: Added motor_speed bridge so motor_mixer can publish via ROS 2 instead of subprocess.
+    # The bridge maps ROS 2 actuator_msgs/Actuators -> Gazebo gz.msgs.Actuators.
+    # Also increased topic count and added explicit QoS where needed.
     bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
@@ -86,6 +89,8 @@ def generate_launch_description():
             "/model/turtlebot3/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry",
             "/model/turtlebot3/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
             "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
+            # NEW: Bridge for motor commands (ROS -> Gazebo)
+            "/model/X3/command/motor_speed@actuator_msgs/msg/Actuators]gz.msgs.Actuators",
         ],
         output="screen",
         parameters=[{"use_sim_time": use_sim_time}],
@@ -105,9 +110,10 @@ def generate_launch_description():
         parameters=[{
             "use_sim_time": use_sim_time,
             "cmd_vel_topic": "/drone/cmd_vel",
-            "gz_topic": "/model/X3/gazebo/command/motor_speed",
+            "gz_topic": "/model/X3/command/motor_speed",  # matches SDF plugin topic
             "hover_throttle": 0.55,
             "gain": 0.15,
+            "publish_via_bridge": True,  # NEW: publish ROS 2 topic instead of subprocess
         }],
     )
 
@@ -162,15 +168,17 @@ def generate_launch_description():
         ],
     )
 
+    # FIX: Increased delays. Gazebo needs time to fully initialize before spawning models.
+    # Bridge must start AFTER models are spawned so topics exist.
     return LaunchDescription([
         DeclareLaunchArgument("use_sim_time", default_value="true"),
         set_gz_path,
         gz_sim,
         TimerAction(period=3.0, actions=[spawn_turtlebot3]),
         TimerAction(period=5.0, actions=[spawn_x3]),
-        TimerAction(period=7.0, actions=[bridge]),
-        TimerAction(period=7.0, actions=[motor_mixer]),
-        TimerAction(period=8.0, actions=[
+        TimerAction(period=8.0, actions=[bridge]),        # was 7.0 -> 8.0
+        TimerAction(period=8.0, actions=[motor_mixer]),   # was 7.0 -> 8.0
+        TimerAction(period=10.0, actions=[                # was 8.0 -> 10.0
             follow_node,
             selector_node,
             voice_node,
