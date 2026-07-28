@@ -1,1 +1,0 @@
-# quadcopter_gazebo package
