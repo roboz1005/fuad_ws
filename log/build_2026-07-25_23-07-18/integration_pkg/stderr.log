@@ -1,5 +1,0 @@
-  File "/home/fuad/Downloads/fuad_ws/install/integration_pkg/lib/python3.12/site-packages/integration_pkg/teleop_bridge.py", line 61
-    "TeleopBridge: no TTY detected (running from launch file?).\n"
-    ^^^^^^^^^^^^^^^^^^^^
-SyntaxError: invalid syntax. Perhaps you forgot a comma?
-
