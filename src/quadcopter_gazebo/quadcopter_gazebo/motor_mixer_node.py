@@ -4,12 +4,16 @@ Motor Mixer Node (X3 UAV)
 Subscribes to /drone/cmd_vel (geometry_msgs/Twist).
 Converts to 4 rotor throttle commands and publishes motor speeds.
 
-Two modes:
-  1. Bridge mode (default): Publishes actuator_msgs/Actuators to a ROS 2 topic
-     that gets bridged to Gazebo via ros_gz_bridge.
-  2. Subprocess mode (fallback): Uses `gz topic` CLI directly.
+Publishes via BOTH:
+  1. ROS 2 topic /model/X3/command/motor_speed (for rqt_graph visibility)
+  2. gz topic subprocess to /X3/command/motor_speed (actual plugin topic)
 
-DEPENDENCIES: actuator_msgs (install: sudo apt install ros-jazzy-actuator-msgs)
+The MulticopterMotorModel plugin in Gazebo Harmonic listens on:
+    /<robotNamespace>/<commandSubTopic>
+With robotNamespace=X3 and commandSubTopic=command/motor_speed,
+the plugin listens on: /X3/command/motor_speed
+
+NOT /model/X3/command/motor_speed — that's where the bridge was sending it.
 """
 import rclpy
 from rclpy.node import Node
@@ -25,16 +29,17 @@ class MotorMixerNode(Node):
         super().__init__("motor_mixer")
 
         self.declare_parameter("cmd_vel_topic", "/drone/cmd_vel")
-        self.declare_parameter("gz_topic", "/model/X3/command/motor_speed")
+        self.declare_parameter("ros_topic", "/model/X3/command/motor_speed")
+        self.declare_parameter("gz_topic", "/X3/command/motor_speed")
         self.declare_parameter("hover_throttle", 0.55)
         self.declare_parameter("max_tilt", 0.3)
         self.declare_parameter("max_yaw_rate", 0.5)
         self.declare_parameter("max_vz", 1.0)
         self.declare_parameter("gain", 0.15)
         self.declare_parameter("publish_rate", 20.0)
-        self.declare_parameter("publish_via_bridge", True)
 
         cmd_topic = self.get_parameter("cmd_vel_topic").value
+        self.ros_topic = self.get_parameter("ros_topic").value
         self.gz_topic = self.get_parameter("gz_topic").value
         self.hover = self.get_parameter("hover_throttle").value
         self.max_tilt = self.get_parameter("max_tilt").value
@@ -42,30 +47,24 @@ class MotorMixerNode(Node):
         self.max_vz = self.get_parameter("max_vz").value
         self.gain = self.get_parameter("gain").value
         rate = self.get_parameter("publish_rate").value
-        self.use_bridge = self.get_parameter("publish_via_bridge").value
 
         self.cmd = Twist()
         self.create_subscription(Twist, cmd_topic, self.twist_cb, 10)
         self.create_timer(1.0 / rate, self.publish_loop)
 
-        if self.use_bridge:
-            self.motor_pub = self.create_publisher(Actuators, self.gz_topic, 10)
-            self.get_logger().info(
-                f"MotorMixer (BRIDGE MODE) started.\n"
-                f"  Subscribing to: {cmd_topic}\n"
-                f"  Publishing Actuators to ROS topic: {self.gz_topic}\n"
-                f"  Rate: {rate} Hz"
-            )
-        else:
-            self.motor_pub = None
-            self.get_logger().info(
-                f"MotorMixer (SUBPROCESS MODE) started.\n"
-                f"  Subscribing to: {cmd_topic}\n"
-                f"  Publishing via gz CLI to: {self.gz_topic}\n"
-                f"  Rate: {rate} Hz"
-            )
+        # ROS publisher for rqt_graph visibility
+        self.motor_pub = self.create_publisher(Actuators, self.ros_topic, 10)
+
+        self.get_logger().info(
+            f"MotorMixer started.\n"
+            f"  Subscribing to: {cmd_topic}\n"
+            f"  Publishing ROS topic: {self.ros_topic}\n"
+            f"  Publishing gz topic:  {self.gz_topic}\n"
+            f"  Rate: {rate} Hz"
+        )
 
         self._first_cmd = True
+        self._pub_count = 0
 
     def twist_cb(self, msg: Twist):
         if self._first_cmd:
@@ -97,50 +96,59 @@ class MotorMixerNode(Node):
         m2 = max(0.0, min(1.0, m2))
         m3 = max(0.0, min(1.0, m3))
 
-        if self.use_bridge and self.motor_pub is not None:
-            # FIX: Use msg.normalized (not velocity) — MulticopterMotorModel reads normalized field
-            msg = Actuators()
-            msg.normalized = [m0, m1, m2, m3]
-            self.motor_pub.publish(msg)
-        else:
-            # Fallback: subprocess gz topic
-            proto_text = (
-                f"normalized: {m0:.6f}\n"
-                f"normalized: {m1:.6f}\n"
-                f"normalized: {m2:.6f}\n"
-                f"normalized: {m3:.6f}\n"
-            )
-            tmp_path = None
-            try:
-                with tempfile.NamedTemporaryFile(
-                    mode='w', suffix='.txt', delete=False
-                ) as tmp:
-                    tmp.write(proto_text)
-                    tmp_path = tmp.name
+        # ---- 1. Publish to ROS topic (for rqt_graph) ----
+        ros_msg = Actuators()
+        ros_msg.normalized = [m0, m1, m2, m3]
+        self.motor_pub.publish(ros_msg)
 
-                result = subprocess.run(
-                    [
-                        "gz", "topic", "-t", self.gz_topic,
-                        "-m", "gz.msgs.Actuators",
-                        "-p", tmp_path,
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=2.0,
-                )
-                if result.returncode != 0 and result.stderr:
-                    self.get_logger().warn(
-                        f"gz topic error: {result.stderr.strip()}",
-                        throttle_duration_sec=5.0,
-                    )
-            except Exception as e:
+        # ---- 2. Publish via gz CLI to ACTUAL plugin topic ----
+        self._publish_via_subprocess(m0, m1, m2, m3)
+
+        self._pub_count += 1
+        if self._pub_count % 100 == 0:
+            self.get_logger().info(
+                f"Motor values: [{m0:.3f}, {m1:.3f}, {m2:.3f}, {m3:.3f}] "
+                f"(throttle={throttle:.3f}, pitch={pitch:.3f}, roll={roll:.3f}, yaw={yaw:.3f})"
+            )
+
+    def _publish_via_subprocess(self, m0, m1, m2, m3):
+        proto_text = (
+            f"normalized: {m0:.6f}\n"
+            f"normalized: {m1:.6f}\n"
+            f"normalized: {m2:.6f}\n"
+            f"normalized: {m3:.6f}\n"
+        )
+        tmp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode='w', suffix='.txt', delete=False
+            ) as tmp:
+                tmp.write(proto_text)
+                tmp_path = tmp.name
+
+            result = subprocess.run(
+                [
+                    "gz", "topic", "-t", self.gz_topic,
+                    "-m", "gz.msgs.Actuators",
+                    "-p", tmp_path,
+                ],
+                capture_output=True,
+                text=True,
+                timeout=2.0,
+            )
+            if result.returncode != 0 and result.stderr:
                 self.get_logger().warn(
-                    f"Motor publish failed: {e}",
+                    f"gz topic error: {result.stderr.strip()}",
                     throttle_duration_sec=5.0,
                 )
-            finally:
-                if tmp_path and os.path.exists(tmp_path):
-                    os.remove(tmp_path)
+        except Exception as e:
+            self.get_logger().warn(
+                f"Motor publish failed: {e}",
+                throttle_duration_sec=5.0,
+            )
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
 
 def main(args=None):

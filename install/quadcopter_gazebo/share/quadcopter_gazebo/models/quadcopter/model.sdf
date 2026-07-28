@@ -5,8 +5,9 @@
     <pose>0 0 0.5 0 0 0</pose>
 
     <link name="base_link">
+      <!-- FIX: Reduced mass so hover throttle 0.55 actually lifts the drone -->
       <inertial>
-        <mass>1.5</mass>
+        <mass>0.5</mass>
         <inertia>
           <ixx>0.0348</ixx>
           <iyy>0.0348</iyy>
@@ -121,7 +122,6 @@
       </visual>
     </link>
 
-    <!-- FIX: Camera sensor moved from base_link to camera_link -->
     <link name="camera_link">
       <pose>0.2 0 0 0 0.785 0</pose>
       <inertial>
@@ -142,7 +142,6 @@
           <diffuse>1 0 0 1</diffuse>
         </material>
       </visual>
-      <!-- Camera sensor now lives on camera_link so the bridge topic matches -->
       <sensor name="camera" type="camera">
         <camera>
           <horizontal_fov>1.047</horizontal_fov>
@@ -231,7 +230,6 @@
       <child>camera_link</child>
     </joint>
 
-    <!-- Gazebo Harmonic Plugins -->
     <plugin filename="gz-sim-odometry-publisher-system"
             name="gz::sim::systems::OdometryPublisher">
       <odometry_frame>world</odometry_frame>
@@ -239,9 +237,10 @@
       <dimensions>3</dimensions>
     </plugin>
 
+    <!-- FIX: robotNamespace changed to model/X3 so plugin listens on /model/X3/command/motor_speed -->
     <plugin filename="gz-sim-multicopter-motor-model-system"
             name="gz::sim::systems::MulticopterMotorModel">
-      <robotNamespace>X3</robotNamespace>
+      <robotNamespace>model/X3</robotNamespace>
       <jointName>rotor_0_joint</jointName>
       <linkName>rotor_0</linkName>
       <turningDirection>ccw</turningDirection>
@@ -260,7 +259,7 @@
 
     <plugin filename="gz-sim-multicopter-motor-model-system"
             name="gz::sim::systems::MulticopterMotorModel">
-      <robotNamespace>X3</robotNamespace>
+      <robotNamespace>model/X3</robotNamespace>
       <jointName>rotor_1_joint</jointName>
       <linkName>rotor_1</linkName>
       <turningDirection>cw</turningDirection>
@@ -277,10 +276,9 @@
       <motorSpeedPubTopic>motor_speed/1</motorSpeedPubTopic>
     </plugin>
 
-    <!-- FIX: rotor_2 plugin name was gz::systems:: (missing sim::) -->
     <plugin filename="gz-sim-multicopter-motor-model-system"
             name="gz::sim::systems::MulticopterMotorModel">
-      <robotNamespace>X3</robotNamespace>
+      <robotNamespace>model/X3</robotNamespace>
       <jointName>rotor_2_joint</jointName>
       <linkName>rotor_2</linkName>
       <turningDirection>ccw</turningDirection>
@@ -299,7 +297,7 @@
 
     <plugin filename="gz-sim-multicopter-motor-model-system"
             name="gz::sim::systems::MulticopterMotorModel">
-      <robotNamespace>X3</robotNamespace>
+      <robotNamespace>model/X3</robotNamespace>
       <jointName>rotor_3_joint</jointName>
       <linkName>rotor_3</linkName>
       <turningDirection>cw</turningDirection>
@@ -316,13 +314,13 @@
       <motorSpeedPubTopic>motor_speed/3</motorSpeedPubTopic>
     </plugin>
 
-    <!-- FIX: Battery plugin name changed to Harmonic-compatible LinearBatteryPlugin -->
     <plugin filename="gz-sim-linearbatteryplugin-system"
             name="gz::sim::systems::LinearBatteryPlugin">
       <battery_name>quadcopter_battery</battery_name>
       <voltage>12.6</voltage>
       <capacity>5.0</capacity>
       <resistance>0.01</resistance>
+      <smooth_current_tau>1.9499</smooth_current_tau>
       <power_load>2.0</power_load>
       <start_on_motion>true</start_on_motion>
     </plugin>
