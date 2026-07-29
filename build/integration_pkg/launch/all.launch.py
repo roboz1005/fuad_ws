@@ -1,1 +1,0 @@
-/home/fuad/Downloads/fuad_ws/src/integration_pkg/launch/all.launch.py

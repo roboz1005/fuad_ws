@@ -1,3 +1,0 @@
-[console_scripts]
-motor_mixer = quadcopter_gazebo.motor_mixer_node:main
-teleop_to_motor = quadcopter_gazebo.teleop_to_motor_node:main
