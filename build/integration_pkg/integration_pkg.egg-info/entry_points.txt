@@ -1,9 +1,0 @@
-[console_scripts]
-battery_sim = integration_pkg.battery_sim_node:main
-dashboard_node = integration_pkg.dashboard_node:main
-follow_node = integration_pkg.follow_node:main
-selector_node = integration_pkg.selector_node:main
-teleop_bridge = integration_pkg.teleop_bridge:main
-tf_broadcaster = integration_pkg.tf_broadcaster_node:main
-tf_follow_node = integration_pkg.tf_follow_node:main
-voice_node = integration_pkg.voice_node:main
