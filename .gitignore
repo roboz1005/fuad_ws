@@ -1,0 +1,14 @@
+# Colcon build output directories
+build/
+install/
+log/
+
+# Optional: Python cache files created during testing/building
+__pycache__/
+*.pyc
+*.pyo
+
+# Optional: Editor/IDE specific files
+.vscode/
+.idea/
+.venv/
