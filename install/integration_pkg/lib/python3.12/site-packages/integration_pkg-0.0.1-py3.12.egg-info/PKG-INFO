@@ -1,8 +1,0 @@
-Metadata-Version: 2.1
-Name: integration-pkg
-Version: 0.0.1
-Summary: Integration package for TurtleBot3 + Quadcopter in Gazebo Harmonic
-Maintainer: Fuad
-Maintainer-email: fuad@example.com
-License: MIT
-Provides-Extra: test
