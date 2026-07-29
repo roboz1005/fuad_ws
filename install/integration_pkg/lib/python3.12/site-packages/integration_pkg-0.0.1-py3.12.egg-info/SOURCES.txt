@@ -15,6 +15,9 @@ integration_pkg/dashboard_node.py
 integration_pkg/follow_node.py
 integration_pkg/selector_node.py
 integration_pkg/teleop_bridge.py
+integration_pkg/tf_broadcaster_node.py
+integration_pkg/tf_follow_node.py
 integration_pkg/voice_node.py
 launch/all.launch.py
+launch/swarm.launch.py
 resource/integration_pkg

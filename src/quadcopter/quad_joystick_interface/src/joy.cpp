@@ -1,163 +1,97 @@
 /*
  * Copyright 2015 Fadri Furrer, ASL, ETH Zurich, Switzerland
- * Copyright 2015 Michael Burri, ASL, ETH Zurich, Switzerland
- * Copyright 2015 Mina Kamel, ASL, ETH Zurich, Switzerland
- * Copyright 2015 Janosch Nikolic, ASL, ETH Zurich, Switzerland
- * Copyright 2015 Markus Achtelik, ASL, ETH Zurich, Switzerland
+ * Licensed under the Apache License, Version 2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
-
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * ROS 2 Jazzy rewrite — publishes geometry_msgs/Twist
  */
 
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/joy.hpp>
+#include <geometry_msgs/msg/twist.hpp>
 
-#include "quad_joystick_interface/joy.h"
+class QuadJoystickInterface : public rclcpp::Node
+{
+public:
+  QuadJoystickInterface() : Node("quad_joystick_interface")
+  {
+    this->declare_parameter("axis_roll", 3);
+    this->declare_parameter("axis_pitch", 4);
+    this->declare_parameter("axis_thrust", 1);
+    this->declare_parameter("axis_yaw", 0);
 
+    this->declare_parameter("axis_direction_roll", -1);
+    this->declare_parameter("axis_direction_pitch", 1);
+    this->declare_parameter("axis_direction_thrust", 1);
+    this->declare_parameter("axis_direction_yaw", -1);
 
-Joy::Joy() {
-  ros::NodeHandle nh;
-  ros::NodeHandle pnh("~");
+    this->declare_parameter("max_roll", 25.0 * M_PI / 180.0);
+    this->declare_parameter("max_pitch", 25.0 * M_PI / 180.0);
+    this->declare_parameter("max_yaw_rate", 50.0 * M_PI / 180.0);
+    this->declare_parameter("max_thrust", 10.0);
+    this->declare_parameter("thrust_offset", 2.75);
 
-  //Publishing message type CommandRollPitchYawrateThrust on topic "command/roll_pitch_yawrate_thrust"
-  ctrl_pub_ = nh_.advertise<mav_msgs::CommandRollPitchYawrateThrust> (
-    "command/roll_pitch_yawrate_thrust", 10);
-  trajectory_pub = nh.advertise<mav_msgs::CommandTrajectory>("command/trajectory", 10);
+    this->declare_parameter("cmd_vel_topic", "/model/X3/cmd_vel");
 
-  //Initialize command/roll_pitch_yawrate_thrust message
-  control_msg_.roll = 0;	// rad
-  control_msg_.pitch = 0;	// rad
-  control_msg_.yaw_rate = 0;	// rad/s
-  control_msg_.thrust = 0;	// N
-  current_yaw_vel_ = 0;		// rad/s
+    axes_.roll = this->get_parameter("axis_roll").as_int();
+    axes_.pitch = this->get_parameter("axis_pitch").as_int();
+    axes_.thrust = this->get_parameter("axis_thrust").as_int();
+    axes_.yaw = this->get_parameter("axis_yaw").as_int();
 
-  trajectory_msg.position.x = 0.0;	// m
-  trajectory_msg.position.y = 0.0;	// m 
-  trajectory_msg.position.z = 0.0;	// m
-  trajectory_msg.yaw = 0.0;	// rad
+    axes_.roll_direction = this->get_parameter("axis_direction_roll").as_int();
+    axes_.pitch_direction = this->get_parameter("axis_direction_pitch").as_int();
+    axes_.thrust_direction = this->get_parameter("axis_direction_thrust").as_int();
+    axes_.yaw_direction = this->get_parameter("axis_direction_yaw").as_int();
 
-  // Hack for sending button statuses
-  trajectory_msg.snap.x = 0.0;	// takeoff
-  trajectory_msg.snap.y = 0.0;	// land
-  trajectory_msg.jerk.x = 0.0;	// enable GPS
-  trajectory_msg.jerk.y = 0.0;	// enable mission
+    max_.roll = this->get_parameter("max_roll").as_double();
+    max_.pitch = this->get_parameter("max_pitch").as_double();
+    max_.rate_yaw = this->get_parameter("max_yaw_rate").as_double();
+    max_.thrust = this->get_parameter("max_thrust").as_double();
+    max_.thrust_offset = this->get_parameter("thrust_offset").as_double();
 
-  mission_mode = 0;
+    std::string cmd_topic = this->get_parameter("cmd_vel_topic").as_string();
 
-  //Initialize Parameters
+    cmd_pub_ = this->create_publisher<geometry_msgs::msg::Twist>(cmd_topic, 10);
+    joy_sub_ = this->create_subscription<sensor_msgs::msg::Joy>(
+      "joy", 10, std::bind(&QuadJoystickInterface::JoyCallback, this, std::placeholders::_1));
 
-  // Map similar to RC set-up
-  pnh.param("axis_roll_", axes_.roll, 3);	// RS <->
-  pnh.param("axis_pitch_", axes_.pitch, 4);	// RS up/down
-  pnh.param("axis_thrust_", axes_.thrust, 1);	// LS up/down
-  pnh.param("axis_yaw_", axes_.yaw, 0);		// LS <->
-
-  pnh.param("axis_direction_roll", axes_.roll_direction, -1);
-  pnh.param("axis_direction_pitch", axes_.pitch_direction, 1);
-  pnh.param("axis_direction_thrust", axes_.thrust_direction, 1);
-  pnh.param("axis_direction_yaw", axes_.yaw_direction, -1);
-
-  pnh.param("max_v_xy", max_.v_xy, 1.0);  // [m/s]
-  pnh.param("max_roll", max_.roll, 25.0 * M_PI / 180.0);  // [rad]
-  pnh.param("max_pitch", max_.pitch, 25.0 * M_PI / 180.0);  // [rad]
-  pnh.param("max_yaw_rate", max_.rate_yaw, 50 * M_PI / 180.0);  // [rad/s]
-  pnh.param("max_thrust", max_.thrust, 10.0);  // [N] 
-  pnh.param("thrust_offset", max_.thrust_offset, 2.75);  // [N] 
-
-  pnh.param("v_yaw_step", v_yaw_step_, 0.1);  // [rad/s]
-
-  pnh.param("button_ctrl_enable_", buttons_.ctrl_enable_gps, 1); // B
-  pnh.param("button_ctrl_mode_", buttons_.ctrl_enable_mission, 3); // Y
-  pnh.param("button_takeoff_", buttons_.takeoff, 0);	// A
-  pnh.param("button_land_", buttons_.land, 2);		// X
-  pnh.param("button_ctrl_auto", buttons_.ctrl_enable_autonomous, 5);	// RB
-  pnh.param("button_ctrl_3dnav", buttons_.ctrl_enable_3dnav, 4);	// LB
-
-  namespace_ = nh_.getNamespace();
-
-  //Subscribe to message "joy" and callback JoyCallback
-  joy_sub_ = nh_.subscribe("joy", 10, &Joy::JoyCallback, this);
-}
-
-//Function to zero out control command
-void Joy::StopMav() {
-
-  control_msg_.roll = 0;
-  control_msg_.pitch = 0;
-  control_msg_.yaw_rate = 0;
-  control_msg_.thrust = 0;
-
-}
-
-void Joy::JoyCallback(const sensor_msgs::JoyConstPtr& msg) {
-  current_joy_ = *msg;
-
-  control_msg_.roll = msg->axes[axes_.roll] * max_.roll * axes_.roll_direction;
-  control_msg_.pitch = msg->axes[axes_.pitch] * max_.pitch * axes_.pitch_direction;
-  control_msg_.thrust = max_.thrust_offset + (msg->axes[axes_.thrust] + 1) * max_.thrust / 2.0 * axes_.thrust_direction;
-  control_msg_.yaw_rate = msg->axes[axes_.yaw] * max_.rate_yaw * axes_.yaw_direction;
-
-  trajectory_msg.position.x = 7.5*control_msg_.pitch;
-  trajectory_msg.position.y = -7.5*control_msg_.roll;	// ROS y axis pos to the left
-  trajectory_msg.position.z = 0.1*(msg->axes[axes_.thrust] * max_.thrust / 2.0 * axes_.thrust_direction);	
-  trajectory_msg.yaw = -control_msg_.yaw_rate;	
-
-  // Hack for sending button states
-  trajectory_msg.snap.x = msg->buttons[buttons_.takeoff];	// takeoff
-  trajectory_msg.snap.y = msg->buttons[buttons_.land];	// land
-  gps_mode = msg->buttons[buttons_.ctrl_enable_gps];	// enable GPS
-  trajectory_msg.jerk.x = msg->buttons[buttons_.ctrl_enable_gps];
-  mission_mode = msg->buttons[buttons_.ctrl_enable_mission];	// enable mission
-  trajectory_msg.jerk.y = msg->buttons[buttons_.ctrl_enable_mission];
-  auto_mode = msg->buttons[buttons_.ctrl_enable_autonomous];	// enable auto
-  trajectory_msg.jerk.z = msg->buttons[buttons_.ctrl_enable_autonomous];
-  trajectory_msg.snap.z = msg->buttons[buttons_.ctrl_enable_3dnav];	// 3D nav
-
-  //Control message header information
-  ros::Time update_time = ros::Time::now();
-  control_msg_.header.stamp = update_time;
-  control_msg_.header.frame_id = "quad_joystick_attitude_frame";
-
-  trajectory_msg.header.stamp = update_time;
-  trajectory_msg.header.frame_id = "quad_joystick_position_frame";
-
-  Publish();	//Publish control command
-
-}
-
-//Function to publish control command
-void Joy::Publish() {
-
-  gps_mode_switch.UpdateSwitchValue(gps_mode);
-  mission_mode_switch.UpdateSwitchValue(mission_mode);
-  auto_mode_switch.UpdateSwitchValue(auto_mode);
-
-  //Enable GPS mode
-  if(gps_mode_switch.GetSwitchValue()){
-    trajectory_msg.jerk.x = 1;	//Flag for position_controller_node
+    RCLCPP_INFO(this->get_logger(), "QuadJoystickInterface started on %s", cmd_topic.c_str());
   }
-  else {
-    trajectory_msg.jerk.x = 0;  //Flag for position_controller_node
-    ctrl_pub_.publish(control_msg_);
-  }  
 
-  trajectory_pub.publish(trajectory_msg); 
+private:
+  struct Axes {
+    int roll, pitch, thrust, yaw;
+    int roll_direction, pitch_direction, thrust_direction, yaw_direction;
+  } axes_;
 
-}
+  struct Max {
+    double roll, pitch, rate_yaw, thrust, thrust_offset;
+  } max_;
 
-int main(int argc, char** argv) {
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_pub_;
+  rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
 
-  ros::init(argc, argv, "quad_joy_interface");	//Specify node name
-  Joy joy;
+  void JoyCallback(const sensor_msgs::msg::Joy::SharedPtr msg)
+  {
+    if (msg->axes.size() < 5) {
+      RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 5000,
+        "Joy message has fewer axes than expected");
+      return;
+    }
 
-  ros::spin();
+    auto twist = geometry_msgs::msg::Twist();
+    twist.linear.x = msg->axes[axes_.pitch] * max_.pitch * axes_.pitch_direction * 0.5;
+    twist.linear.y = msg->axes[axes_.roll] * max_.roll * axes_.roll_direction * 0.5;
+    twist.linear.z = max_.thrust_offset + (msg->axes[axes_.thrust] + 1.0) * max_.thrust / 2.0 * axes_.thrust_direction;
+    twist.angular.z = msg->axes[axes_.yaw] * max_.rate_yaw * axes_.yaw_direction;
 
+    cmd_pub_->publish(twist);
+  }
+};
+
+int main(int argc, char ** argv)
+{
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<QuadJoystickInterface>());
+  rclcpp::shutdown();
   return 0;
 }

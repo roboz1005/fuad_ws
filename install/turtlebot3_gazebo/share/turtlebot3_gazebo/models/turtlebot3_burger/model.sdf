@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.8">
-  <model name="turtlebot3_burger">
+  <model name="turtlebot3">
     <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
 
     <link name="base_footprint"/>
@@ -390,7 +390,7 @@
 
       <odom_topic>odom</odom_topic>
       <frame_id>odom</frame_id>
-      <child_frame_id>base_footprint</child_frame_id>
+      <child_frame_id>base_link</child_frame_id>
       <odom_publisher_frequency>30</odom_publisher_frequency>
 
       <tf_topic>/tf</tf_topic>

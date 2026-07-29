@@ -1,7 +1,6 @@
-# FILE LOCATION: fuad_ws/src/integration_pkg/config/params.yaml
 # =============================================================================
 # ROS 2 parameters file for integration_pkg
-# Load via: parameters=[path/to/this/file] in launch Node()
+# All topics match Gazebo Harmonic + ros_gz_bridge conventions
 # =============================================================================
 
 /**:
@@ -10,12 +9,12 @@
     # SPAWN POSITIONS
     # -------------------------------------------------------------------------
     spawn_turtlebot3_x: -2.0
-    spawn_turtlebot3_y: 0.0
-    spawn_turtlebot3_z: 0.0
+    spawn_turtlebot3_y: -2.0
+    spawn_turtlebot3_z: 0.01
     spawn_turtlebot3_yaw: 0.0
     spawn_quadcopter_x: 0.0
     spawn_quadcopter_y: 0.0
-    spawn_quadcopter_z: 3.0
+    spawn_quadcopter_z: 0.5
     spawn_quadcopter_yaw: 0.0
 
     # -------------------------------------------------------------------------
@@ -29,17 +28,22 @@
     avoidance_distance: 0.35
 
     # -------------------------------------------------------------------------
-    # TOPIC NAMES (X3 UAV + TurtleBot3)
+    # TOPIC NAMES — matched to Gazebo Harmonic bridge topics
     # -------------------------------------------------------------------------
-    drone_cmd_vel_topic: "/drone/cmd_vel"
-    drone_odom_topic: "/drone/odom"
-    tb3_cmd_vel_topic: "/turtlebot/cmd_vel"
-    tb3_odom_topic: "/turtlebot/odom"
-    tb3_scan_topic: "/turtlebot/scan"
+    # Quadcopter (model name = X3)
+    drone_cmd_vel_topic: "/model/X3/cmd_vel"
+    drone_odom_topic: "/model/X3/odometry"
+    drone_camera_topic: "/world/default/model/X3/link/camera_link/sensor/camera/image"
+    drone_battery_topic: "/drone/battery"
+
+    # TurtleBot3 (model name = turtlebot3)
+    tb3_cmd_vel_topic: "/model/turtlebot3/cmd_vel"
+    tb3_odom_topic: "/model/turtlebot3/odometry"
+    tb3_scan_topic: "/model/turtlebot3/scan"
+
+    # Control arbitration
     manual_cmd_topic: "/manual_cmd"
     voice_cmd_topic: "/voice_cmd"
-    camera_topic: "/drone/camera"
-    battery_topic: "/drone/battery"
     mode_topic: "/control/mode"
     set_mode_service: "/command_selector/set_mode"
 
